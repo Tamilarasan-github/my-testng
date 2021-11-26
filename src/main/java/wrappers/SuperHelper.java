@@ -46,8 +46,8 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			configProp.load(new FileReader("./src/test/java/prop/config.properties"));
-			credentialsProp.load(new FileReader("./src/test/java/prop/credentials.properties"));
+			configProp.load(new FileReader("./src/main/java/prop/config.properties"));
+			credentialsProp.load(new FileReader("./src/main/java/prop/credentials.properties"));
 		} 
 		catch (FileNotFoundException e)
 		{
