@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.openqa.selenium.json.Json;
 
@@ -27,7 +29,8 @@ import utils.Reporter;
 
 public class RESTAssuredBase extends Reporter
 {
-
+	private static Logger logger=LogManager.getLogger(Reporter.class.getName());
+	
 	public RequestSpecification request(String url, Map<String, ?> requestHeaders, Map<String, ?> requestQueryParams,
 			String requestBody, boolean logs)
 	{

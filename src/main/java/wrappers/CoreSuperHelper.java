@@ -49,13 +49,14 @@ public class CoreSuperHelper extends SuperHelper{
 	public void afterSuite()
 	{
 		System.out.println("@AfterSuite");
-		saveReport();
+		
 	}
 	
 	@AfterTest
 	public void afterTest()
 	{
 		System.out.println("@AfterTest");
+		saveReport();
 	}
 	
 	@AfterClass

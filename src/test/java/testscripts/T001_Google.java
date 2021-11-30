@@ -10,6 +10,7 @@ import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.events.EventFiringDecorator;
 import org.openqa.selenium.support.events.WebDriverListener;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
@@ -27,10 +28,17 @@ public class T001_Google extends CoreSuperHelper
 		testcaseName="T001_Google";
 	}
 	
-	@Test(invocationCount = 1)
+	@BeforeGroups(value= {"Smoke"})
+	public void beforeGroup()
+	{
+		System.out.println("BeforeGroup is executed");
+	}
+	
+	@Test(invocationCount = 4, groups= {"Smoke"}, threadPoolSize = 5)
 	public void openGoogle() 
 	{
-		WebDriverManager.chromedriver().setup();
+		//WebDriverManager.chromedriver().setup();
+		System.setProperty("webdriver.chrome.driver", "./src/main/java/drivers/chromedriver.exe");
 		log.debug("Browser is about to open");
 		RemoteWebDriver remoteWebDriver = new ChromeDriver();
 		WebDriverListener  driverListener=new MyWebDriverListener();
@@ -42,7 +50,20 @@ public class T001_Google extends CoreSuperHelper
 		WebElement searchBar=driver.findElement(By.name("q"));
 		enterTextAndClickEnter(searchBar, "Hello World This is my time now", true);
 		log.debug("Hello World is entered into search bar");
-		driver.getWindowHandles();
 		driver.quit();
+		
+		System.out.println("First Test Executed");
+	}
+	
+	@Test(invocationCount = 1, groups= {"Smoke"})
+	public void openGoogleTwo() 
+	{
+		System.out.println("2nd Test Executed");
+	}
+	
+	@Test(invocationCount = 1, groups= {"Smoke"})
+	public void openGoogleThree() 
+	{
+		System.out.println("3rd Test Executed");
 	}
 }
