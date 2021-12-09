@@ -24,6 +24,7 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -36,11 +37,16 @@ import com.aventstack.extentreports.Status;
 
 import utils.Reporter;
 
-public class SuperHelper extends Reporter implements Helper
+public class SuperHelper extends Reporter implements CoreSuperHelper
 {
-	public RemoteWebDriver driver;
+	static ThreadLocal<RemoteWebDriver> driver= new ThreadLocal<>();
 	public Properties configProp=new Properties();
 	public Properties credentialsProp=new Properties();
+	
+	public RemoteWebDriver getWebDriver()
+	{
+		return driver.get();
+	}
 	
 	public void loadProperties()
 	{
@@ -68,15 +74,15 @@ public class SuperHelper extends Reporter implements Helper
 			switch (locator)
 			{
 			case "id":
-				return driver.findElement(By.id(locValue));
+				return getWebDriver().findElement(By.id(locValue));
 			case "name":
-				return driver.findElement(By.name(locValue));
+				return getWebDriver().findElement(By.name(locValue));
 			case "class":
-				return driver.findElement(By.className(locValue));
+				return getWebDriver().findElement(By.className(locValue));
 			case "link":
-				return driver.findElement(By.linkText(locValue));
+				return getWebDriver().findElement(By.linkText(locValue));
 			case "xpath":
-				return driver.findElement(By.xpath(locValue));
+				return getWebDriver().findElement(By.xpath(locValue));
 			default:
 				break;
 			}
@@ -93,7 +99,7 @@ public class SuperHelper extends Reporter implements Helper
 
 	public WebElement locateElement(String locValue)
 	{
-		return driver.findElement(By.id(locValue));
+		return getWebDriver().findElement(By.id(locValue));
 	}
 
 	public void enter(WebElement element, String data)
@@ -224,7 +230,7 @@ public class SuperHelper extends Reporter implements Helper
 		String title = "";
 		try
 		{
-			title = driver.getTitle();
+			title = getWebDriver().getTitle();
 		} catch (WebDriverException e)
 		{
 			log(Status.FAIL, "Unknown Exception Occured While fetching Title");
@@ -337,7 +343,7 @@ public class SuperHelper extends Reporter implements Helper
 			else
 			{
 				log(Status.FAIL,
-						"The title of the page:" + driver.getTitle() + " did not match with the value :" + title);
+						"The title of the page:" + getWebDriver().getTitle() + " did not match with the value :" + title);
 			}
 		} 
 		catch (WebDriverException e)
@@ -460,14 +466,14 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			Set<String> allWindowHandles = driver.getWindowHandles();
+			Set<String> allWindowHandles = getWebDriver().getWindowHandles();
 			List<String> allHandles = new ArrayList<>();
 			allHandles.addAll(allWindowHandles);
-			driver.switchTo().window(allHandles.get(index));
+			getWebDriver().switchTo().window(allHandles.get(index));
 		} 
 		catch (NoSuchWindowException e)
 		{
-			log(Status.FAIL, "The driver could not move to the given window by index " + index);
+			log(Status.FAIL, "The getWebDriver() could not move to the given window by index " + index);
 		} 
 		catch (WebDriverException e)
 		{
@@ -479,7 +485,7 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			driver.switchTo().frame(element);
+			getWebDriver().switchTo().frame(element);
 			log(Status.PASS, "Switched In to the Frame " + element);
 		} catch (NoSuchFrameException e)
 		{
@@ -495,7 +501,7 @@ public class SuperHelper extends Reporter implements Helper
 		String text = "";
 		try
 		{
-			Alert alert = driver.switchTo().alert();
+			Alert alert = getWebDriver().switchTo().alert();
 			text = alert.getText();
 			alert.accept();
 			log(Status.PASS, "The alert " + text + " is accepted.");
@@ -513,7 +519,7 @@ public class SuperHelper extends Reporter implements Helper
 		String text = "";
 		try
 		{
-			Alert alert = driver.switchTo().alert();
+			Alert alert = getWebDriver().switchTo().alert();
 			text = alert.getText();
 			alert.dismiss();
 			log(Status.PASS, "The alert " + text + " is dismissed.");
@@ -532,7 +538,7 @@ public class SuperHelper extends Reporter implements Helper
 		String text = "";
 		try
 		{
-			Alert alert = driver.switchTo().alert();
+			Alert alert = getWebDriver().switchTo().alert();
 			text = alert.getText();
 		} 
 		catch (NoAlertPresentException e)
@@ -550,7 +556,7 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			driver.close();
+			getWebDriver().close();
 			log(Status.PASS, "The browser current window/tab is closed");
 		} catch (Exception e)
 		{
@@ -562,7 +568,7 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			driver.quit();
+			getWebDriver().quit();
 			log(Status.PASS, "The opened browsers are closed");
 		} catch (Exception e)
 		{
@@ -584,7 +590,7 @@ public class SuperHelper extends Reporter implements Helper
 			} else
 			{
 				log(Status.FAIL,
-						"The title of the page:" + driver.getTitle() + " did not match with the value :" + title);
+						"The title of the page:" + getWebDriver().getTitle() + " did not match with the value :" + title);
 			}
 		} catch (WebDriverException e)
 		{
@@ -595,61 +601,61 @@ public class SuperHelper extends Reporter implements Helper
 
 	public void waitForElementToBeVisible(WebElement element, int waitTimeoutInMillis)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeoutInMillis));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeoutInMillis));
 		wait.until(ExpectedConditions.visibilityOf(element));
 	}
 	
 	public void waitForElementToBeClickable(WebElement element, int waitTimeoutInMillis)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeoutInMillis));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeoutInMillis));
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 	}
 	
 	public void waitForAlert(WebElement element, int waitTimeoutInMillis)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeoutInMillis));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeoutInMillis));
 		wait.until(ExpectedConditions.alertIsPresent());
 	}
 	
 	public void waitForFrameToBeAvailableAndSwitch(WebElement element, int waitTimeoutInMillis)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeoutInMillis));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeoutInMillis));
 		wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(element));
 	}
 	
 	public void waitForNumOfWindowsToBe(int numOfWindows, int waitTimeoutInMillis)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeoutInMillis));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeoutInMillis));
 		wait.until(ExpectedConditions.numberOfWindowsToBe(numOfWindows));
 	}
 	
 	public void waitForElementToBeVisible(WebElement element, Duration duration, int waitTimeout)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeout));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeout));
 		wait.until(ExpectedConditions.visibilityOf(element));
 	}
 	
 	public void waitForElementToBeClickable(WebElement element, Duration duration, int waitTimeout)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeout));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeout));
 		wait.until(ExpectedConditions.elementToBeClickable(element));
 	}
 	
 	public void waitForAlert(WebElement element, Duration duration, int waitTimeout)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeout));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeout));
 		wait.until(ExpectedConditions.alertIsPresent());
 	}
 	
 	public void waitForFrameToBeAvailableAndSwitch(WebElement element, Duration duration, int waitTimeout)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeout));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeout));
 		wait.until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(element));
 	}
 	
 	public void waitForNumOfWindowsToBe(int numOfWindows, Duration duration, int waitTimeout)
 	{
-		WebDriverWait wait=new WebDriverWait(driver, Duration.ofMillis(waitTimeout));
+		WebDriverWait wait=new WebDriverWait(getWebDriver(), Duration.ofMillis(waitTimeout));
 		wait.until(ExpectedConditions.numberOfWindowsToBe(numOfWindows));
 	}
 	
@@ -695,7 +701,7 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		String fullFilenameWithPath = filePath.concat(fileName).concat(fileFormat);
 
-		File source = driver.getScreenshotAs(OutputType.FILE);
+		File source = getWebDriver().getScreenshotAs(OutputType.FILE);
 		File destination = new File(fullFilenameWithPath);
 		try
 		{
@@ -710,25 +716,25 @@ public class SuperHelper extends Reporter implements Helper
 	//JavascriptExecutor
 	public void executeJavascript(String script)
 	{
-		JavascriptExecutor js=(JavascriptExecutor)driver;
+		JavascriptExecutor js=(JavascriptExecutor)getWebDriver();
 		js.executeScript(script);
 	}
 	
 	public void executeAsyncJavascript(String script)
 	{
-		JavascriptExecutor js=(JavascriptExecutor)driver;
+		JavascriptExecutor js=(JavascriptExecutor)getWebDriver();
 		js.executeAsyncScript(script);
 	}
 	
 	public void executeJavascript(String script, WebElement element)
 	{
-		JavascriptExecutor js=(JavascriptExecutor)driver;
+		JavascriptExecutor js=(JavascriptExecutor)getWebDriver();
 		js.executeScript(script, element);
 	}
 	
 	public void executeAsyncJavascript(String script, WebElement element)
 	{
-		JavascriptExecutor js=(JavascriptExecutor)driver;
+		JavascriptExecutor js=(JavascriptExecutor)getWebDriver();
 		js.executeAsyncScript(script, element);
 	}
 	
@@ -813,7 +819,7 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			Actions actions=new Actions(driver);
+			Actions actions=new Actions(getWebDriver());
 			actions.moveToElement(element).click().build().perform();
 			log(Status.PASS, "The element " + element + " is clicked", takeScreenshotOrNo);
 		} catch (InvalidElementStateException e)
@@ -834,7 +840,7 @@ public class SuperHelper extends Reporter implements Helper
 	{
 		try
 		{
-			Actions actions=new Actions(driver);
+			Actions actions=new Actions(getWebDriver());
 			actions.moveToElement(element).sendKeys(data).build().perform();
 			log(Status.PASS, "The data: " + data + " entered successfully in the field :" + element,
 					takeScreenshotOrNo);
