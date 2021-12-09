@@ -2,9 +2,9 @@ package pages;
 
 import com.aventstack.extentreports.Status;
 
-import wrappers.CoreSuperHelper;
+import wrappers.Helper;
 
-public class HelloWorldPage extends CoreSuperHelper{
+public class HelloWorldPage extends Helper{
 
 	public HelloWorldPage helloWorldPass()
 	{

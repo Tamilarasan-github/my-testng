@@ -15,9 +15,9 @@ import org.testng.annotations.Test;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import listeners.MyWebDriverListener;
-import wrappers.CoreSuperHelper;
+import wrappers.Helper;
 
-public class T001_Google extends CoreSuperHelper
+public class T001_Google extends Helper
 {
 	private static Logger log=LogManager.getLogger(T001_Google.class.getName());
 	
