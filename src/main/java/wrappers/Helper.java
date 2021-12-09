@@ -12,7 +12,7 @@ import org.testng.annotations.DataProvider;
 
 
 
-public class CoreSuperHelper extends SuperHelper{
+public class Helper extends SuperHelper{
 
 	public String description;
 	public String testcaseName;
