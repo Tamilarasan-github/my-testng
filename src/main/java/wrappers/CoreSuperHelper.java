@@ -6,7 +6,7 @@ import org.openqa.selenium.ElementNotVisibleException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 
-public interface Helper {
+public interface CoreSuperHelper {
 
 
 
