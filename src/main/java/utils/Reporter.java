@@ -17,6 +17,7 @@ public abstract class Reporter
 
 	private static Logger log=LogManager.getLogger(Reporter.class.getName());
 	static Map<Integer, ExtentTest> extentTestMap = new HashMap<>();
+	static ThreadLocal<ExtentTest> extentTest=new ThreadLocal<ExtentTest>();
 	public static ExtentReports extentReport;
 //	public ExtentTest extentTest;
 
@@ -27,26 +28,32 @@ public abstract class Reporter
 		extentReport.attachReporter(spark);
 		log.debug("startExtentReport() is triggered and extent report is started");
 	}
+	
+	public static ExtentTest getExtentTest()
+	{
+		return extentTest.get();
+	}
 
 	public static synchronized ExtentTest createNewTest(String desc, String testName)
 	{
-		ExtentTest extentTest = extentReport.createTest(desc, testName);
+		ExtentTest test = extentReport.createTest(desc, testName);
 		log.debug("createNewTest(String desc, String testName) is triggered and new test is created with desc as "+desc+" and testName as "+testName);
-		extentTestMap.put((int)Thread.currentThread().getId(), extentTest);
-		return extentTest;
+	//	extentTestMap.put((int)Thread.currentThread().getId(), extentTest);
+		extentTest.set(test);
+		return getExtentTest();
 	}
 
 	public void log(Status status, String details)
 	{
 		if(status.equals(Status.FAIL))
 		{
-			extentTestMap.get((int)Thread.currentThread().getId()).log(status, details, MediaEntityBuilder
+			getExtentTest().log(status, details, MediaEntityBuilder
 					.createScreenCaptureFromPath(takeScreenshot()).build());
 			log.debug("log(Status status, String details) is triggered and status is "+status+" and details are "+details);
 		}
 		else
 		{
-			extentTestMap.get((int)Thread.currentThread().getId()).log(status, details);
+			getExtentTest().log(status, details);
 		}
 	}
 
@@ -54,13 +61,13 @@ public abstract class Reporter
 	{
 		if (takeScreenshot)
 		{
-			extentTestMap.get((int)Thread.currentThread().getId()).log(status, details, MediaEntityBuilder
+			getExtentTest().log(status, details, MediaEntityBuilder
 					.createScreenCaptureFromPath(takeScreenshot()).build());
 			log.debug("log(Status status, String details, boolean takeScreenshot) is triggered and status is "+status+", details are "+details+" and takeScreenshot is "+takeScreenshot);
 		} 
 		else
 		{
-			extentTestMap.get((int)Thread.currentThread().getId()).log(status, details);
+			getExtentTest().log(status, details);
 		}
 	}
 
