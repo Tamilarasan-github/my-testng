@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -24,28 +26,55 @@ import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.NoSuchFrameException;
 import org.openqa.selenium.NoSuchWindowException;
 import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
+import org.openqa.selenium.support.events.EventFiringDecorator;
+import org.openqa.selenium.support.events.WebDriverListener;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import com.aventstack.extentreports.Status;
 
+import listeners.MyWebDriverListener;
 import utils.Reporter;
 
 public class SuperHelper extends Reporter implements CoreSuperHelper
 {
-	static ThreadLocal<RemoteWebDriver> driver= new ThreadLocal<>();
+	static ThreadLocal<WebDriver> driver= new ThreadLocal<>();
 	public Properties configProp=new Properties();
 	public Properties credentialsProp=new Properties();
 	
-	public RemoteWebDriver getWebDriver()
+	public WebDriver getWebDriver()
 	{
 		return driver.get();
+	}
+	
+	public void openBrowser()
+	{
+		System.setProperty("webdriver.chrome.driver", "./src/main/java/drivers/chromedriver.exe");
+		URL url =null;
+		try
+		{
+			url = new URL("http://localhost:4444/wd/hub");
+		} catch (MalformedURLException e)
+		{
+			e.printStackTrace();
+		}
+
+		DesiredCapabilities dc = new DesiredCapabilities();
+		dc.setBrowserName("chrome");
+		
+		RemoteWebDriver remoteWebDriver = new RemoteWebDriver(url, dc);
+		WebDriverListener driverListener = new MyWebDriverListener();
+		
+		driver.set(new EventFiringDecorator(driverListener).decorate(remoteWebDriver));
+		
 	}
 	
 	public void loadProperties()
@@ -701,7 +730,7 @@ public class SuperHelper extends Reporter implements CoreSuperHelper
 	{
 		String fullFilenameWithPath = filePath.concat(fileName).concat(fileFormat);
 
-		File source = getWebDriver().getScreenshotAs(OutputType.FILE);
+		File source = ((TakesScreenshot) getWebDriver()).getScreenshotAs(OutputType.FILE);
 		File destination = new File(fullFilenameWithPath);
 		try
 		{
