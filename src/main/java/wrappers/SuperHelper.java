@@ -30,6 +30,8 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
@@ -55,26 +57,53 @@ public class SuperHelper extends Reporter implements CoreSuperHelper
 		return driver.get();
 	}
 	
-	public void openBrowser()
+	public void openChromeBrowser(boolean remote, boolean headlessMode)
 	{
-		System.setProperty("webdriver.chrome.driver", "./src/main/java/drivers/chromedriver.exe");
-		URL url =null;
-		try
+		openBrowser(remote, "chrome", headlessMode);
+	}
+	
+	public void openBrowser(boolean remote, String browserName, boolean headlessMode)
+	{
+		if (remote)
 		{
-			url = new URL("http://localhost:4444/wd/hub");
-		} catch (MalformedURLException e)
-		{
-			e.printStackTrace();
-		}
+			URL url = null;
+			try
+			{
+				url = new URL("http://localhost:4444/wd/hub");
+			} catch (MalformedURLException e)
+			{
+				e.printStackTrace();
+			}
 
-		DesiredCapabilities dc = new DesiredCapabilities();
-		dc.setBrowserName("chrome");
+			DesiredCapabilities dc = new DesiredCapabilities();
+
+			if (browserName.equalsIgnoreCase("chrome") || browserName.equalsIgnoreCase("firefox"))
+				dc.setBrowserName(browserName.toLowerCase());
+
+			RemoteWebDriver remoteWebDriver = new RemoteWebDriver(url, dc);
+			WebDriverListener driverListener = new MyWebDriverListener();
+			driver.set(new EventFiringDecorator(driverListener).decorate(remoteWebDriver));
+		}
+		else 
+		{
+			if(browserName.equalsIgnoreCase("chrome"))
+			{
+				 System.setProperty("webdriver.chrome.driver", "./src/main/java/drivers/chromedriver.exe");
+				
+				ChromeOptions chromeOptions = new ChromeOptions();
+				
+				if(headlessMode)
+				chromeOptions.addArguments("--headless");
+				
+				ChromeDriver chromeDriver=new ChromeDriver(chromeOptions);
+				
+				WebDriverListener driverListener = new MyWebDriverListener();
+
+				driver.set(new EventFiringDecorator(driverListener).decorate(chromeDriver));
+			}
+		}
 		
-		RemoteWebDriver remoteWebDriver = new RemoteWebDriver(url, dc);
-		WebDriverListener driverListener = new MyWebDriverListener();
-		
-		driver.set(new EventFiringDecorator(driverListener).decorate(remoteWebDriver));
-		
+
 	}
 	
 	public void loadProperties()
